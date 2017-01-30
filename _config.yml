@@ -1,7 +1,7 @@
 # Mandatory settings
 
-name: Chalk
-paginate: 25
+name: Vincent Renais
+paginate: 2
 paginate_path: "/posts/page/:num/"
 url: http://www.vincentrenais.com # add site url http://example.com/
 blog_theme: light # Or use dark
