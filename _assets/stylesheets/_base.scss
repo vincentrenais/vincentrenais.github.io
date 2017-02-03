@@ -38,11 +38,16 @@ strong {
   font-weight: $base-font-weight-bold;
 }
 
+h5 {
+  margin: 0;
+  line-height: 1.3;
+  text-rendering: optimizeLegibility;
+}
+
 h1,
 h2,
 h3,
 h4,
-h5,
 h6 {
   margin: 0;
   line-height: 1.5;
@@ -93,12 +98,13 @@ h6 {
 }
 
 a {
-  color: $base-accent-color;
-  text-decoration: underline;
+  color: $base-accent-highlighted-color;
+  text-decoration: none;
   transition: color $base-transition-speed linear;
   &:hover,
   &:active {
     color: $base-accent-highlighted-color;
+    text-decoration: underline;
   }
   &:focus {
     color: $base-accent-highlighted-color;
