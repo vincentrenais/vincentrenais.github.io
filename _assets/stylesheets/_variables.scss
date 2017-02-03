@@ -6,10 +6,9 @@
 // =============================================================================
 
 $sans-serif: -apple-system, BlinkMacSystemFont, sans-serif;
-$serif: -apple-system, BlinkMacSystemFont, sans-serif;
 $base-font-family: $sans-serif;
-$base-font-weight: 400;
-$base-font-weight-bold: 700;
+$base-font-weight: 500;
+$base-font-weight-bold: 800;
 
 // Colors
 // =============================================================================
@@ -27,15 +26,15 @@ $brand-warning: #f1c90b;
 // Grid
 
 $columns: 12;
-$max-width: 650px;
+$max-width: 850px;
 $gutter: 20px;
 $one-column: 100% / $columns;
 $negative-gutter: 0 - $gutter;
 
 // Font sizes
 
-$base-font-size: 16px;
-$base-line-height: 1.8;
+$base-font-size: 20px;
+$base-line-height: 1.6;
 
 // Box sizes
 
@@ -44,4 +43,4 @@ $base-border-radius: 4px;
 // Effects
 // =============================================================================
 
-$base-transition-speed: .2s;
+$base-transition-speed: .1s;

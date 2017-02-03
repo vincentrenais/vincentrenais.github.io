@@ -10,9 +10,9 @@
 
 .header-logo {
   display: inline-block;
-  font-family: $serif;
-  font-size: 40px;
-  font-weight: 500;
+  font-family: $sans-serif;
+  font-size: 36px;
+  font-weight: 600;
   color: $header-logo-color;
   text-decoration: none;
 }
@@ -20,7 +20,7 @@
 .header-links {
   float: right;
   padding: 0;
-  margin: 28px 0 0;
+  margin: 22px 0 0 0;
   list-style: none;
   li {
     display: inline-block;

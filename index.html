@@ -1,19 +1,17 @@
 ---
 layout: default
-title:
-description:
+title: "The high quality, completely customizable, performant and 100% free blog template for Jekyll"
+description: "Chalk uses all the best tools and merges them into one premium blogging theme."
 ---
 
 <ul class="article-list">
   {% for post in paginator.posts %}
     <li class="article-list-item reveal">
       <a href="{{ post.url | relative_url }}" title="{{ post.title }}">
-        <h2>
+        <h5>
           {{ post.title }}
-          <span class="icon icon-ios-arrow-thin-right"></span>
-        </h2>
+        </h5>
       </a>
-      <p>{{ post.description }}</p>
       <div class="article-list-footer">
         <span class="article-list-date">
           {{ post.date | date: "%B %-d, %Y" }}
@@ -35,6 +33,7 @@ description:
         </div>
       </div>
     </li>
+    <p>{{ post.description }}</p>
   {% endfor %}
   {% if paginator.total_pages > 1 %}
     <li class="article-pagination reveal">

@@ -1,6 +1,6 @@
 # Mandatory settings
 
-name: Vincent Renais
+name: vr.
 paginate: 5
 paginate_path: "/posts/page/:num/"
 url: http://www.vincentrenais.com # add site url http://example.com/
