@@ -131,6 +131,7 @@
   }
   a {
     text-decoration: none;
+    transition: color $base-transition-speed linear;
   }
 }
 
