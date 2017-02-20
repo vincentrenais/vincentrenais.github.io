@@ -58,6 +58,7 @@
   }
   a {
     text-decoration: none;
+    transition: color $base-transition-speed linear;
     font-weight: 600;
     }
   p {
