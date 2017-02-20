@@ -52,6 +52,9 @@
     padding-right: 25px;
     color: $article-header-title-color;
     border-bottom: 1px solid transparent;
+    a {
+      transition: color $base-transition-speed linear;
+      }
     &:hover {
       color: $article-footer-link-color-hover;
     }
