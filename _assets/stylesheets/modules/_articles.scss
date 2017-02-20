@@ -53,10 +53,12 @@
     color: $article-header-title-color;
     border-bottom: 1px solid transparent;
     a {
+      text-decoration: none;
       transition: color $base-transition-speed linear;
+      font-weight: 600;
+      &:hover {
+        color: $article-footer-link-color-hover;
       }
-    &:hover {
-      color: $article-footer-link-color-hover;
     }
   }
   a {
