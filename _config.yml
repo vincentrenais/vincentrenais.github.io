@@ -1,7 +1,7 @@
 # Mandatory settings
 
 name: vr.
-paginate: 20
+paginate: 10
 paginate_path: "/posts/page/:num/"
 url: http://www.vincentrenais.com # add site url http://example.com/
 blog_theme: light # Or use dark

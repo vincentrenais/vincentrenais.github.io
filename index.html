@@ -32,8 +32,8 @@ description:
           {% endfor %}
         </div>
       </div>
+      <p>{{ post.description }}</p>
     </li>
-    <p>{{ post.description }}</p>
   {% endfor %}
   {% if paginator.total_pages > 1 %}
     <li class="article-pagination reveal">
