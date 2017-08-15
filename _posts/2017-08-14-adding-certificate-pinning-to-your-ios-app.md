@@ -150,7 +150,9 @@ openssl s_client -connect www.apple.com:443 -servername www.apple.com < /dev/nul
 * `DER` - pretty common binary format when dealing with certificates
 * `> appleCert.cer` - the end file we want
 
-Now you should have a file named `appleCert.cer`. Let's add it to our Xcode project. Drag and drop the file into Xcode. Make sure you select `copy items if needed` and that you check the target in the `add to targets` section.
+Now you should have a file named `appleCert.cer`. Let's add it to our Xcode project. Drag and drop the file into Xcode. Make sure you select `copy items if needed` and that you check the target in the `add to targets` section when you get to this screen:
+
+{% include image.html path="documentation/xcode_file_import_confirm_prompt.png" path-detail="documentation/xcode_file_import_confirm_prompt@2x.png" alt="Xcode File Import Confirm Prompt" %}
 
 To make sure the file was added to the main target:
 * Right click on the `.cer` file inside the Xcode project navigator and select `Show File Inspector`
@@ -194,4 +196,3 @@ The main caveat is the certificates' expiration date. The server certificate exp
 In a future post we'll see how to implement public key pinning, which is a way to partly remove the aforementioned caveat.
 
 _The final Xcode project is available on [Github](https://github.com/vincentrenais/CertificatePinningExample/tree/master)_
-
