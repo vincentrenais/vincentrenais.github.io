@@ -1,20 +1,26 @@
----
----
 <?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:dc="http://purl.org/dc/elements/1.1/">
   <channel>
-    <title>{{ site.name | xml_escape }}</title>
-    <description>{% if site.description %}{{ site.description | xml_escape }}{% endif %}</description>
-    <link>{{ site.url }}</link>
-    <atom:link href="{{ page.path | absolute_url }}" rel="self" type="application/rss+xml" />
-    {% for post in site.posts limit:10 %}
+    <title>vr.</title>
+    <description></description>
+    <link>http://www.vincentrenais.com</link>
+    <atom:link href="http://www.vincentrenais.com/feed.xml" rel="self" type="application/rss+xml" />
+    
       <item>
-        <title>{{ post.title | xml_escape }}</title>
-        <description>{{ post.description | xml_escape }}</description>
-        <pubDate>{{ post.date | date_to_rfc822 }}</pubDate>
-        <link>{{ post.url | absolute_url }}</link>
-        <guid isPermaLink="true">{{ post.url | absolute_url }}</guid>
+        <title>Public key pinning as a great alternative to certificate pinning</title>
+        <description>Let's dig into public key pinning and see why it's probably a better solution than certificate pinning in most cases.</description>
+        <pubDate>Tue, 15 Aug 2017 00:00:00 -0400</pubDate>
+        <link>http://www.vincentrenais.com/posts/public-key-pinning-is-a-great-alternative</link>
+        <guid isPermaLink="true">http://www.vincentrenais.com/posts/public-key-pinning-is-a-great-alternative</guid>
       </item>
-    {% endfor %}
+    
+      <item>
+        <title>Adding certificate pinning to your iOS app with Alamofire</title>
+        <description>Make your app more secure and avoid man-in-the-middle attacks with certificate pinning.</description>
+        <pubDate>Mon, 14 Aug 2017 00:00:00 -0400</pubDate>
+        <link>http://www.vincentrenais.com/posts/adding-certificate-pinning-to-your-ios-app</link>
+        <guid isPermaLink="true">http://www.vincentrenais.com/posts/adding-certificate-pinning-to-your-ios-app</guid>
+      </item>
+    
   </channel>
 </rss>

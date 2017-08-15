@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <title>Vincent Renais | Public key pinning as a great alternative to certificate pinning</title>
+  
+  <meta name="description" content="Let's dig into public key pinning and see why it's probably a better solution than certificate pinning in most cases.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="Public key pinning as a great alternative to certificate pinning">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://www.vincentrenais.com/posts/public-key-pinning-is-a-great-alternative">
+  <meta property="og:description" content="Let's dig into public key pinning and see why it's probably a better solution than certificate pinning in most cases.">
+  <meta property="og:site_name" content="vr.">
+  <meta property="og:image" content="http://www.vincentrenais.com/assets/og-image.jpg">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="http://www.vincentrenais.com/posts/public-key-pinning-is-a-great-alternative">
+  <meta name="twitter:title" content="Public key pinning as a great alternative to certificate pinning">
+  <meta name="twitter:description" content="Let's dig into public key pinning and see why it's probably a better solution than certificate pinning in most cases.">
+  <meta name="twitter:image" content="http://www.vincentrenais.com/assets/og-image.jpg">
+
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link href="http://www.vincentrenais.com/feed.xml" type="application/rss+xml" rel="alternate" title="vr. Last 10 blog posts" />
+
+  
+    <link type="text/css" rel="stylesheet" href="/assets/light.css">
+  
+</head>
+
+<body>
+  <main role="main">
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav reveal">
+  <a href="/" class="header-logo" title="vr.">vr.</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <span class="icon icon-android-person"></span>
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="https://twitter.com/vincentrenais" target="_blank" title="Twitter">
+          <span class="icon icon-social-twitter"></span>
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="https://github.com/vincentrenais" target="_blank" title="GitHub">
+          <span class="icon icon-social-github"></span>
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://www.linkedin.com/in/vincentrenais" target="_blank" title="LinkedIn">
+          <span class="icon icon-social-linkedin"></span>
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="mailto:vincentrenais@gmail.com" title="Email">
+          <span class="icon icon-at"></span>
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="/feed.xml" target="_blank" title="RSS">
+          <span class="icon icon-social-rss"></span>
+        </a>
+      </li>
+    
+  </ul>
+</nav>
+
+        <article class="article reveal">
+          <header class="article-header">
+            <h1>Public key pinning as a great alternative to certificate pinning</h1>
+            <div class="article-list-footer">
+              <span class="article-list-date">
+                August 15, 2017
+              </span>
+              <span class="article-list-divider">|</span>
+              <span class="article-list-minutes">
+                
+                
+                  3 minute read
+                
+              </span>
+              <span class="article-list-divider">|</span>
+              <div class="article-list-tags">
+                
+                  <a href="/tag/ios">ios</a>
+                
+                  <a href="/tag/security">security</a>
+                
+              </div>
+            </div>
+            <p>Let's dig into public key pinning and see why it's probably a better solution than certificate pinning in most cases.</p>
+          </header>
+
+          <div class="article-content">
+            <p>Following up on my previous <a href="http://www.vincentrenais.com/posts/adding-certificate-pinning-to-your-ios-app">post</a> about certificate pinning, let’s look at public key pinning as an alternative.</p>
+
+<p>I mentioned in the conclusion of my last post that one of the caveat of certificate pinning was dealing with the certificate replacement. Public keys don’t expire and therefore can be re-used to issue new certificates. By pinning the key we remove the need for a certificate replacement strategy.</p>
+
+<p>Extracting the key is a little more work but it is really worth it and is probably the best solution for most apps.</p>
+
+<h4 id="extracting-the-key">Extracting the key</h4>
+
+<p>We’ll start from where we left off in the previous post, just download the starter project on <a href="https://github.com/vincentrenais/CertificatePinningExample/tree/master">Github</a>.</p>
+
+<p>First we need a method to extract the key.</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">private</span> <span class="kd">func</span> <span class="nf">extractPublicKeyFromCertificates</span><span class="p">(</span><span class="n">_</span> <span class="nv">certs</span><span class="p">:</span> <span class="p">[</span><span class="kt">SecCertificate</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">SecKey</span><span class="p">]</span> <span class="p">{</span>
+        <span class="k">var</span> <span class="nv">trust</span><span class="p">:</span> <span class="kt">SecTrust</span><span class="p">?</span>
+        <span class="k">let</span> <span class="nv">policy</span> <span class="o">=</span> <span class="kt">SecPolicyCreateBasicX509</span><span class="p">()</span>
+        <span class="k">var</span> <span class="nv">publicKeys</span><span class="p">:</span> <span class="p">[</span><span class="kt">SecKey</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">cert</span> <span class="k">in</span> <span class="n">certs</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="nv">status</span> <span class="o">=</span> <span class="kt">SecTrustCreateWithCertificates</span><span class="p">(</span><span class="n">cert</span><span class="p">,</span> <span class="n">policy</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">trust</span><span class="p">)</span>
+            <span class="k">var</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">SecKey</span><span class="p">?</span>
+            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="n">errSecSuccess</span> <span class="p">{</span>
+                <span class="k">guard</span> <span class="k">let</span> <span class="nv">finalTrust</span> <span class="o">=</span> <span class="n">trust</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="p">[]</span> <span class="p">}</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="kt">SecTrustCopyPublicKey</span><span class="p">(</span><span class="n">finalTrust</span><span class="p">)</span>
+            <span class="p">}</span>
+            <span class="k">guard</span> <span class="k">let</span> <span class="nv">publicKey</span> <span class="o">=</span> <span class="n">key</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="p">[]</span> <span class="p">}</span>
+            <span class="n">publicKeys</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">publicKey</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">publicKeys</span>
+    <span class="p">}</span> </code></pre></figure>
+
+<p>We pass the array of certificates as a parameter and we are returning an array of <code class="highlighter-rouge">SekKey</code> objects.</p>
+
+<p>The security framework is written in C, we don’t get nice instance methods, instead we’ll have to work with functions. It’s going to hurt a little but we’ll get there.</p>
+
+<p>First we create an empty array of <code class="highlighter-rouge">SecKey</code> objects.</p>
+
+<p>Then we create a <code class="highlighter-rouge">SecTrust</code> variable called <code class="highlighter-rouge">trust</code>, we will pass this object’s pointer to one of the functions later on.</p>
+
+<p>We also create a <code class="highlighter-rouge">SecPolicy</code> object using the <code class="highlighter-rouge">SecPolicyCreateBasicX509()</code> function. This will return an object that conforms to the X509 public key infrastructure standard.</p>
+
+<p>Then, for each certificate in the array we are calling  <code class="highlighter-rouge">SecTrustCreateWithCertificates()</code>. We pass the certificate, the policy and the pointer to the <code class="highlighter-rouge">SecTrust</code> object previously created. The function will return a <code class="highlighter-rouge">OSStatus</code> with failure or success as well as the <code class="highlighter-rouge">SecTrust</code> object that will be stored in the previously provided pointer.</p>
+
+<p>Finally we can check the <code class="highlighter-rouge">OSStatus</code>, and if <code class="highlighter-rouge">errSecSuccess</code> is returned we can then create a <code class="highlighter-rouge">SecKey</code> with the <code class="highlighter-rouge">SecTrustCopyPublicKey()</code> function to which we pass the returned  <code class="highlighter-rouge">SecTrust</code>.</p>
+
+<h4 id="using-the-key">Using the key</h4>
+
+<p>The changes required in the <code class="highlighter-rouge">enableCertificatePinning()</code> are minimal.</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">private</span> <span class="kd">func</span> <span class="nf">enableCertificatePinning</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">certificates</span> <span class="o">=</span> <span class="nf">getCertificates</span><span class="p">()</span>
+    <span class="k">let</span> <span class="nv">publicKeys</span> <span class="o">=</span> <span class="nf">extractPublicKeysFromCertificates</span><span class="p">(</span><span class="n">certificates</span><span class="p">)</span>
+    <span class="k">let</span> <span class="nv">trustPolicy</span> <span class="o">=</span> <span class="kt">ServerTrustPolicy</span><span class="o">.</span><span class="nf">pinPublicKeys</span><span class="p">(</span>
+        <span class="nv">publicKeys</span><span class="p">:</span> <span class="n">publicKeys</span><span class="p">,</span>
+        <span class="nv">validateCertificateChain</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+        <span class="nv">validateHost</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
+<span class="o">...</span></code></pre></figure>
+
+<p>First we load the certificates, then we extract the public keys. The <code class="highlighter-rouge">ServerTrustPolicy</code> needs to be modified as well, we are now using <code class="highlighter-rouge">pinPublicKeys()</code> instead of <code class="highlighter-rouge">pinCertificates()</code>.</p>
+
+<p>That’s it, we are now pinning the public key from the embedded Apple certificate instead of the certificate itself.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>In most cases public key pinning is probably the best solution, you just have to make sure the same public key is used when issuing new certificates on the server your app is talking to. One of the caveat would be that the key is static which may violate key rotation policies. No solution is ever perfect…</p>
+
+<p><em>The final Xcode project is available on <a href="https://github.com/vincentrenais/CertificatePinningExample/tree/publicKeyPinning">Github</a></em></p>
+
+          </div>
+
+          <div class="article-share">
+            
+            <a href="" title="Share on Twitter" onclick="window.open('https://twitter.com/home?status=Public key pinning as a great alternative to ce... - http://www.vincentrenais.com/posts/public-key-pinning-is-a-great-alternative by @vincentrenais', 'newwindow', 'width=500, height=225'); return false;">
+              <span class="icon icon-social-twitter"></span>
+            </a>
+            <a href="" title="Share on Facebook" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=http://www.vincentrenais.com/posts/public-key-pinning-is-a-great-alternative', 'newwindow', 'width=500, height=500'); return false;">
+              <span class="icon icon-social-facebook"></span>
+            </a>
+            <a href="" title="Share on Google+" onclick="window.open('https://plus.google.com/share?url=http://www.vincentrenais.com/posts/public-key-pinning-is-a-great-alternative', 'newwindow', 'width=550, height=400'); return false;">
+              <span class="icon icon-social-googleplus"></span>
+            </a>
+          </div>
+
+          
+        </article>
+        <footer class="footer reveal">
+
+</footer>
+
+      </div>
+    </div>
+  </main>
+  <script type="text/javascript" src="/assets/vendor.js"></script>
+<script type="text/javascript" src="/assets/application.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
+<script>
+  WebFont.load({
+    google: {
+      families: ['Cormorant Garamond:700', 'Lato:300,400,700']
+    }
+  });
+</script>
+
+
+  <script>
+    window.ga=function(){ga.q.push(arguments)};ga.q=[];ga.l=+new Date;
+    ga('create','UA-500467-2','auto');ga('send','pageview')
+  </script>
+  <script src="https://www.google-analytics.com/analytics.js" async defer></script>
+
+
+</body>
+</html>

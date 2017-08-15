@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <title>Vincent Renais | Adding certificate pinning to your iOS app with Alamofire</title>
+  
+  <meta name="description" content="Make your app more secure and avoid man-in-the-middle attacks with certificate pinning.">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta property="og:title" content="Adding certificate pinning to your iOS app with Alamofire">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="http://www.vincentrenais.com/posts/adding-certificate-pinning-to-your-ios-app">
+  <meta property="og:description" content="Make your app more secure and avoid man-in-the-middle attacks with certificate pinning.">
+  <meta property="og:site_name" content="vr.">
+  <meta property="og:image" content="http://www.vincentrenais.com/assets/og-image.jpg">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:url" content="http://www.vincentrenais.com/posts/adding-certificate-pinning-to-your-ios-app">
+  <meta name="twitter:title" content="Adding certificate pinning to your iOS app with Alamofire">
+  <meta name="twitter:description" content="Make your app more secure and avoid man-in-the-middle attacks with certificate pinning.">
+  <meta name="twitter:image" content="http://www.vincentrenais.com/assets/og-image.jpg">
+
+  <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+  <link href="http://www.vincentrenais.com/feed.xml" type="application/rss+xml" rel="alternate" title="vr. Last 10 blog posts" />
+
+  
+    <link type="text/css" rel="stylesheet" href="/assets/light.css">
+  
+</head>
+
+<body>
+  <main role="main">
+    <div class="grid grid-centered">
+      <div class="grid-cell">
+        <nav class="header-nav reveal">
+  <a href="/" class="header-logo" title="vr.">vr.</a>
+  <ul class="header-links">
+    
+      <li>
+        <a href="/about" title="About me">
+          <span class="icon icon-android-person"></span>
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="https://twitter.com/vincentrenais" target="_blank" title="Twitter">
+          <span class="icon icon-social-twitter"></span>
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="https://github.com/vincentrenais" target="_blank" title="GitHub">
+          <span class="icon icon-social-github"></span>
+        </a>
+      </li>
+    
+    
+    
+    
+      <li>
+        <a href="https://www.linkedin.com/in/vincentrenais" target="_blank" title="LinkedIn">
+          <span class="icon icon-social-linkedin"></span>
+        </a>
+      </li>
+    
+    
+    
+      <li>
+        <a href="mailto:vincentrenais@gmail.com" title="Email">
+          <span class="icon icon-at"></span>
+        </a>
+      </li>
+    
+    
+      <li>
+        <a href="/feed.xml" target="_blank" title="RSS">
+          <span class="icon icon-social-rss"></span>
+        </a>
+      </li>
+    
+  </ul>
+</nav>
+
+        <article class="article reveal">
+          <header class="article-header">
+            <h1>Adding certificate pinning to your iOS app with Alamofire</h1>
+            <div class="article-list-footer">
+              <span class="article-list-date">
+                August 14, 2017
+              </span>
+              <span class="article-list-divider">|</span>
+              <span class="article-list-minutes">
+                
+                
+                  8 minute read
+                
+              </span>
+              <span class="article-list-divider">|</span>
+              <div class="article-list-tags">
+                
+                  <a href="/tag/ios">ios</a>
+                
+                  <a href="/tag/security">security</a>
+                
+              </div>
+            </div>
+            <p>Make your app more secure and avoid man-in-the-middle attacks with certificate pinning.</p>
+          </header>
+
+          <div class="article-content">
+            <p>I received an email the other morning from <a href="https://haveibeenpwned.com">’;–have i been pwned?</a> that read like this:</p>
+
+<blockquote>
+  <p>You’re one of 85,176,234 people pwned in the Dailymotion data breach</p>
+</blockquote>
+
+<p>So I went ahead and deleted my account. Not sure why I had an account to begin with. One thing that struck me was the fact that I was not surprised at all. Just another data breach. These things became the norm, your data will get stolen at some point.</p>
+
+<p>So what can we do to avoid this as much as possible in our beloved iOS apps? Certificate pinning is one answer.</p>
+
+<p>I’m no security expert but one thing I know is that certificate pinning is like putting a lock on your door, it is not foolproof but you would have to be insane not to have one.</p>
+
+<h4 id="why">Why?</h4>
+
+<p>It’s simple, we rely more and more on outside services such as your favorite Starbucks wifi network or the subway fancy new free wifi. These are great, but since the security of HTTPS connections relies on trust (trusting the chain of certificates all the way back to the root certificate). A proxy and a rogue root certificate and anybody can intercept the communications between your app and the server. Well, not “anybody” but you get my point.</p>
+
+<h4 id="how">How?</h4>
+
+<p>Certificate pinning removes the need for trust. By bundling the server certificate with your app and check, for every request, that the certificate in your app matches the one on the server, you limit greatly the potential for attacks.</p>
+
+<h4 id="does-it-hurt">Does it hurt?</h4>
+
+<p>A little bit, there’s some C functions involved as most of the security framework is written in C. But it should be fine.</p>
+
+<h4 id="no-networking-library">No networking library</h4>
+
+<p>If you are not using Alamofire, I’d like to point out to <a href="https://twitter.com/floriankugler">Florian Kugler</a> and <a href="https://twitter.com/cocoaphony">Rob Napier</a> great <a href="https://talk.objc.io/episodes/S01E57-certificate-pinning">video</a> on <a href="https://talk.objc.io">Swift Talk</a>. They go through the certificate pinning implementation with <code class="highlighter-rouge">NSURLSession</code>. I highly recommend getting a Swift Talk subscription by the way. Great stuff!</p>
+
+<h2 id="alamofire">Alamofire</h2>
+
+<p>You can download the starter project on <a href="https://github.com/vincentrenais/CertificatePinningExample/tree/starterProject">GitHub</a>. The <a href="https://github.com/Alamofire/Alamofire">Alamofire</a> pod is already included so you should be able to run the app out of the box.</p>
+
+<p>We are starting with a very simple app that loads a webpage in a WebView. Below is the code for <code class="highlighter-rouge">ViewController.swift</code>.</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">import</span> <span class="kt">UIKit</span>
+<span class="kd">import</span> <span class="kt">Alamofire</span>
+
+<span class="kd">class</span> <span class="kt">ViewController</span><span class="p">:</span> <span class="kt">UIViewController</span> <span class="p">{</span>
+
+	<span class="kd">@IBOutlet</span> <span class="k">weak</span> <span class="k">var</span> <span class="nv">webView</span><span class="p">:</span> <span class="kt">UIWebView</span><span class="o">!</span>
+
+	<span class="k">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+	    <span class="k">super</span><span class="o">.</span><span class="nf">viewDidLoad</span><span class="p">()</span>
+
+	    <span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"https://www.apple.com"</span><span class="p">)</span><span class="o">!</span>
+	    <span class="kt">Alamofire</span><span class="o">.</span><span class="nf">request</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">responseData</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+	    <span class="k">if</span> <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="k">let</span> <span class="nv">requestURL</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">request</span><span class="p">?</span><span class="o">.</span><span class="n">url</span> <span class="p">{</span>
+	        <span class="k">self</span><span class="o">.</span><span class="n">webView</span><span class="o">.</span><span class="nf">load</span><span class="p">(</span><span class="n">data</span><span class="p">,</span>
+	                          <span class="nv">mimeType</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">response</span><span class="p">?</span><span class="o">.</span><span class="n">mimeType</span> <span class="p">??</span> <span class="s">""</span><span class="p">,</span>
+	                          <span class="nv">textEncodingName</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">response</span><span class="p">?</span><span class="o">.</span><span class="n">textEncodingName</span> <span class="p">??</span> <span class="s">""</span><span class="p">,</span>
+	                          <span class="nv">baseURL</span><span class="p">:</span> <span class="n">requestURL</span><span class="p">)</span>
+	        <span class="p">}</span>
+	    <span class="p">}</span>
+	<span class="p">}</span>
+<span class="p">}</span></code></pre></figure>
+
+<p>If you run the app at this point you should see Apple’s website in a WebView.</p>
+
+<p>Now let’s add certificate pinning to this app.</p>
+
+<h4 id="step-1---make-it-fail">Step 1 - Make it fail</h4>
+
+<p>The best way to check if it is secure is to make it fail. We’ll start there.</p>
+
+<p>The iOS Security framework format for certificates is <code class="highlighter-rouge">SecCertificate</code>. We are going to implement certificate pinning with an empty array of <code class="highlighter-rouge">SecCertificate</code> objects and make sure the requests do not go through.</p>
+
+<p>As of now we are using <code class="highlighter-rouge">Alamofire.request</code> to send a request to the server. This is a nice convenient method that uses a default instance of <code class="highlighter-rouge">SessionManager</code> configured with the default <code class="highlighter-rouge">URLSessionConfiguration</code>. To implement certificate pinning we need to create our own <code class="highlighter-rouge">SessionManager</code>.</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">@IBOutlet</span> <span class="k">weak</span> <span class="k">var</span> <span class="nv">webView</span><span class="p">:</span> <span class="kt">UIWebView</span><span class="o">!</span>
+
+<span class="kd">private</span> <span class="k">var</span> <span class="nv">sessionManager</span><span class="p">:</span> <span class="kt">SessionManager</span><span class="p">?</span>
+
+<span class="k">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+
+<span class="o">...</span></code></pre></figure>
+
+<p>What we need now is a method to enable certificate pinning. Let’s write it.</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">private</span> <span class="kd">func</span> <span class="nf">enableCertificatePinning</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="nv">certificates</span><span class="p">:</span> <span class="p">[</span><span class="kt">SecCertificate</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="k">let</span> <span class="nv">trustPolicy</span> <span class="o">=</span> <span class="kt">ServerTrustPolicy</span><span class="o">.</span><span class="nf">pinCertificates</span><span class="p">(</span>
+    <span class="nv">certificates</span><span class="p">:</span> <span class="n">certificates</span><span class="p">,</span>
+    <span class="nv">validateCertificateChain</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nv">validateHost</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
+  <span class="k">let</span> <span class="nv">trustPolicies</span> <span class="o">=</span> <span class="p">[</span> <span class="s">"www.apple.com"</span><span class="p">:</span> <span class="n">trustPolicy</span> <span class="p">]</span>
+  <span class="k">let</span> <span class="nv">policyManager</span> <span class="o">=</span>  <span class="kt">ServerTrustPolicyManager</span><span class="p">(</span><span class="nv">policies</span><span class="p">:</span> <span class="n">trustPolicies</span><span class="p">)</span>
+  <span class="n">sessionManager</span> <span class="o">=</span> <span class="kt">SessionManager</span><span class="p">(</span>
+    <span class="nv">configuration</span><span class="p">:</span> <span class="o">.</span><span class="k">default</span><span class="p">,</span>
+    <span class="nv">serverTrustPolicyManager</span><span class="p">:</span> <span class="n">policyManager</span><span class="p">)</span>
+<span class="p">}</span></code></pre></figure>
+
+<ul>
+  <li>First we are creating an empty array of type <code class="highlighter-rouge">SecCertificate</code>. Remember we want it to fail.</li>
+  <li>The <code class="highlighter-rouge">ServerTrustPolicy</code> is an object that evaluates the server trust with a given set of criteria to determine whether the server trust is valid and the connection should be made. It is recommended to validate both the chain of certificates and the host so these two parameters should be set to true.</li>
+  <li><code class="highlighter-rouge">trustPolicies</code> is a dictionary with the aforementioned <code class="highlighter-rouge">ServerTrustPolicy</code> object as the value and the host as the key, in our case <code class="highlighter-rouge">www.apple.com</code>. We’ll use it to instantiate a <code class="highlighter-rouge">ServerTrustPolicyManager</code>.</li>
+  <li><code class="highlighter-rouge">policyManager</code> is an instance of <code class="highlighter-rouge">ServerTrustPolicyManager</code>. It takes a dictionary of policies as parameters. We need this object to instantiate our <code class="highlighter-rouge">SessionManager</code>.</li>
+  <li>Finally we instantiate our <code class="highlighter-rouge">SessionManager</code> with a <code class="highlighter-rouge">.default</code> configuration and our <code class="highlighter-rouge">policyManager</code>.</li>
+</ul>
+
+<p>Now let’s call this method from <code class="highlighter-rouge">viewDidLoad</code> and replace <code class="highlighter-rouge">Alamofire.request</code> with <code class="highlighter-rouge">sessionManager?.request</code>.</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="k">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">super</span><span class="o">.</span><span class="nf">viewDidLoad</span><span class="p">()</span>
+
+  <span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"https://www.apple.com"</span><span class="p">)</span><span class="o">!</span>
+  <span class="nf">enableCertificatePinning</span><span class="p">()</span>
+  <span class="n">sessionManager</span><span class="p">?</span><span class="o">.</span><span class="nf">request</span><span class="p">(</span><span class="n">url</span><span class="p">)</span><span class="o">.</span><span class="n">responseData</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span></code></pre></figure>
+
+<p>We are all set, Alamofire will check our certificate against the host and the server certificate before letting any request go through.</p>
+
+<p>Ok, it’s time to check, run the app and make sure Apple’s website does NOT load.</p>
+
+<p>The output in the debug console should look something like this:</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">HTTP load failed <span class="o">(</span>error code: -999 <span class="o">[</span>1:89]<span class="o">)</span> <span class="k">for </span>Task &lt;6DCDA5EE-0F9C-4E30-B553-E5E4614E2502&gt;.&lt;1&gt;</code></pre></figure>
+
+<h4 id="step-2---fix-it">Step 2 - Fix it!</h4>
+
+<p>What we need first is the server certificate from <code class="highlighter-rouge">www.apple.com</code>. We will use the OpenSSL command line to achieve this.</p>
+
+<figure class="highlight"><pre><code class="language-shell" data-lang="shell">openssl s_client -connect www.apple.com:443 -servername www.apple.com &lt; /dev/null | openssl x509 -outform DER &gt; appleCert.cer</code></pre></figure>
+
+<ul>
+  <li><code class="highlighter-rouge">s_client</code> - the SSL client from OpenSSL</li>
+  <li><code class="highlighter-rouge">-connect</code> - sub-command to connect to an SSL server</li>
+  <li><code class="highlighter-rouge">www.apple.com:443</code> - server address + port</li>
+  <li><code class="highlighter-rouge">-servername</code> - in case the server is hosted on a shared hosting service</li>
+  <li><code class="highlighter-rouge">&lt; /dev/null</code> - to avoid a prompt</li>
+  <li><code class="highlighter-rouge">x509</code> - name of the format of certificates</li>
+  <li><code class="highlighter-rouge">-outform</code> - to specify the format we want it in</li>
+  <li><code class="highlighter-rouge">DER</code> - pretty common binary format when dealing with certificates</li>
+  <li><code class="highlighter-rouge">&gt; appleCert.cer</code> - the end file we want</li>
+</ul>
+
+<p>Now you should have a file named <code class="highlighter-rouge">appleCert.cer</code>. Let’s add it to our Xcode project. Drag and drop the file into Xcode. Make sure you select <code class="highlighter-rouge">copy items if needed</code> and that you check the target in the <code class="highlighter-rouge">add to targets</code> section when you get to this screen:</p>
+
+<p><a href="/assets/documentation/xcode_file_import_confirm_prompt@2x.png" class="fluidbox-trigger">
+  <img src="/assets/documentation/xcode_file_import_confirm_prompt.png" alt="Xcode File Import Confirm Prompt" />
+</a></p>
+
+<p>To make sure the file was added to the main target:</p>
+<ul>
+  <li>Right click on the <code class="highlighter-rouge">.cer</code> file inside the Xcode project navigator and select <code class="highlighter-rouge">Show File Inspector</code></li>
+  <li>Check the last section at the bottom called <code class="highlighter-rouge">Target Membership</code> and make sure the main target is checked.</li>
+</ul>
+
+<p>Now that we have the certificate in the project, let’s write a function to load it and cast it to the right format. The format we need is <code class="highlighter-rouge">SecCertificate</code>.</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">private</span> <span class="kd">func</span> <span class="nf">getCertificates</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">SecCertificate</span><span class="p">]</span> <span class="p">{</span>
+	<span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">url</span><span class="p">(</span><span class="nv">forResource</span><span class="p">:</span> <span class="s">"appleCert"</span><span class="p">,</span> <span class="nv">withExtension</span><span class="p">:</span> <span class="s">"cer"</span><span class="p">)</span><span class="o">!</span>
+	<span class="k">let</span> <span class="nv">localCertificate</span> <span class="o">=</span> <span class="k">try!</span> <span class="kt">Data</span><span class="p">(</span><span class="nv">contentsOf</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span> <span class="k">as</span> <span class="kt">CFData</span>
+	<span class="k">guard</span> <span class="k">let</span> <span class="nv">certificate</span> <span class="o">=</span> <span class="kt">SecCertificateCreateWithData</span><span class="p">(</span><span class="kc">nil</span><span class="p">,</span> <span class="n">localCertificate</span><span class="p">)</span>
+	   <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="p">[]</span> <span class="p">}</span>
+
+	<span class="k">return</span> <span class="p">[</span><span class="n">certificate</span><span class="p">]</span>
+<span class="p">}</span>	    </code></pre></figure>
+
+<p>We force unwrap using <code class="highlighter-rouge">!</code> twice in this snippet of code, even though this is something I usually try to avoid, in this case it makes sense as we actually want the app to crash if <code class="highlighter-rouge">url</code> and/or <code class="highlighter-rouge">localCertificate</code> are <code class="highlighter-rouge">nil</code>. Perhaps we did not import the certificate file properly or maybe it wasn’t added to the main target. In any case we want to know.</p>
+
+<p>Now let’s use our new method inside <code class="highlighter-rouge">enableCertificatePinning()</code> :</p>
+
+<figure class="highlight"><pre><code class="language-swift" data-lang="swift"><span class="kd">private</span> <span class="kd">func</span> <span class="nf">enableCertificatePinning</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">certificates</span> <span class="o">=</span> <span class="nf">getCertificates</span><span class="p">()</span>
+    <span class="k">let</span> <span class="nv">trustPolicy</span> <span class="o">=</span> <span class="kt">ServerTrustPolicy</span><span class="o">.</span><span class="nf">pinCertificates</span><span class="p">(</span>
+<span class="o">...</span></code></pre></figure>
+
+<p>Great, now run the app and everything should be back to normal. Congrats, you just implemented certificate pinning.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<h4 id="caveat">Caveat</h4>
+<p>The main caveat is the certificates’ expiration date. The server certificate expires so it will be replaced at some point and when that happens, if your app is not ready with the new one, well you have a problem… So you need to adopt some sort of a strategy where you update your server certificate regularly (let’s say every year) whatever the expiration date. You include the old certificate as well as the new one, which is why we are using an array of certificates. This way you are giving your users enough time to update before the old certificate expires.</p>
+
+<h4 id="public-key-pinning">Public Key Pinning</h4>
+<p>In a future post we’ll see how to implement public key pinning, which is a way to partly remove the aforementioned caveat.</p>
+
+<p><em>The final Xcode project is available on <a href="https://github.com/vincentrenais/CertificatePinningExample/tree/master">Github</a></em></p>
+
+          </div>
+
+          <div class="article-share">
+            
+            <a href="" title="Share on Twitter" onclick="window.open('https://twitter.com/home?status=Adding certificate pinning to your iOS app with... - http://www.vincentrenais.com/posts/adding-certificate-pinning-to-your-ios-app by @vincentrenais', 'newwindow', 'width=500, height=225'); return false;">
+              <span class="icon icon-social-twitter"></span>
+            </a>
+            <a href="" title="Share on Facebook" onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=http://www.vincentrenais.com/posts/adding-certificate-pinning-to-your-ios-app', 'newwindow', 'width=500, height=500'); return false;">
+              <span class="icon icon-social-facebook"></span>
+            </a>
+            <a href="" title="Share on Google+" onclick="window.open('https://plus.google.com/share?url=http://www.vincentrenais.com/posts/adding-certificate-pinning-to-your-ios-app', 'newwindow', 'width=550, height=400'); return false;">
+              <span class="icon icon-social-googleplus"></span>
+            </a>
+          </div>
+
+          
+        </article>
+        <footer class="footer reveal">
+
+</footer>
+
+      </div>
+    </div>
+  </main>
+  <script type="text/javascript" src="/assets/vendor.js"></script>
+<script type="text/javascript" src="/assets/application.js"></script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.16/webfont.js"></script>
+<script>
+  WebFont.load({
+    google: {
+      families: ['Cormorant Garamond:700', 'Lato:300,400,700']
+    }
+  });
+</script>
+
+
+  <script>
+    window.ga=function(){ga.q.push(arguments)};ga.q=[];ga.l=+new Date;
+    ga('create','UA-500467-2','auto');ga('send','pageview')
+  </script>
+  <script src="https://www.google-analytics.com/analytics.js" async defer></script>
+
+
+</body>
+</html>
